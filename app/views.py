@@ -56,6 +56,11 @@ def user_login (request):
             login(request,AUO)
             request.session['username']=username
             return HttpResponseRedirect(reverse('home'))
+        else:
+
+            return HttpResponse('password does not matched')
+
+    
 
 
 
@@ -78,4 +83,34 @@ def profile_display (request):
     d={'UO':UO,'PO':PO}
     return render (request,'profile_display.html',d)
 
-        
+
+
+
+@login_required
+def change_password(request) :
+    if request.method=='POST':
+        password=request.POST['pw']
+        username=request.session.get('username')
+        UO=User.objects.get(username=username)
+        UO.set_password(password)
+        UO.save()
+        return HttpResponseRedirect(reverse('home'))
+    return render (request,'change_password.html')
+
+
+
+def reset_password(request):
+    if request.method=='POST':
+        password=request.POST['pw']
+        username=request.POST['un']
+        LUO=User.objects.filter(username=username)
+        if LUO:
+            UO=LUO[0]
+            UO.set_password(password)
+            UO.save()
+            return HttpResponseRedirect(reverse('user_login'))
+        else:
+            return HttpResponse('password does not match')
+
+
+    return render (request,'reset_password.html')
